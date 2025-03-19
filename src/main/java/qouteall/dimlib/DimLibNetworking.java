@@ -30,55 +30,58 @@ import static qouteall.dimlib.DimLibEntry.MODID;
 
 public class DimLibNetworking {
     public static final Logger LOGGER = LoggerFactory.getLogger(DimLibNetworking.class);
-    
+
+    @Environment(EnvType.CLIENT)
+    public static void initClient() {
+        ClientPlayNetworking.registerGlobalReceiver(
+                DimSyncPacket.TYPE.getId(),
+                (client, handler, buf, responseSender) -> {
+                    // directly handle in networking thread
+                    // it does not touch world state, so it's safe
+                    DimSyncPacket dimSyncPacket = DimSyncPacket.TYPE.read(buf);
+                    dimSyncPacket.handleOnNetworkingThread(handler);
+                }
+        );
+    }
+
     public record DimSyncPacket(
-        CompoundTag dimIdToTypeIdTag
+            CompoundTag dimIdToTypeIdTag
     ) implements FabricPacket {
         public static final ResourceLocation DIM_SYNC_CHANNEL = new ResourceLocation(MODID, "dim_sync");
         public static final PacketType<DimSyncPacket> TYPE = PacketType.create(
-            DIM_SYNC_CHANNEL,
-            DimSyncPacket::new
+                DIM_SYNC_CHANNEL,
+                DimSyncPacket::new
         );
-        
+
         public DimSyncPacket(FriendlyByteBuf buf) {
             this(buf.readNbt());
         }
-        
-        @Override
-        public void write(FriendlyByteBuf buf) {
-            buf.writeNbt(dimIdToTypeIdTag);
-        }
-        
-        @Override
-        public PacketType<?> getType() {
-            return TYPE;
-        }
-        
+
         public static DimSyncPacket createPacket(MinecraftServer server) {
             RegistryAccess registryManager = server.registryAccess();
             Registry<DimensionType> dimensionTypes = registryManager.registryOrThrow(Registries.DIMENSION_TYPE);
-            
+
             CompoundTag dimIdToDimTypeId = new CompoundTag();
             for (ServerLevel world : server.getAllLevels()) {
                 ResourceKey<Level> dimId = world.dimension();
-                
+
                 DimensionType dimType = world.dimensionType();
                 ResourceLocation dimTypeId = dimensionTypes.getKey(dimType);
-                
+
                 if (dimTypeId == null) {
                     LOGGER.error("Cannot find dimension type for {}", dimId.location());
                     LOGGER.error(
-                        "Registered dimension types {}", dimensionTypes.keySet()
+                            "Registered dimension types {}", dimensionTypes.keySet()
                     );
                     dimTypeId = BuiltinDimensionTypes.OVERWORLD.location();
                 }
-                
+
                 dimIdToDimTypeId.putString(
-                    dimId.location().toString(),
-                    dimTypeId.toString()
+                        dimId.location().toString(),
+                        dimTypeId.toString()
                 );
             }
-            
+
             return new DimSyncPacket(dimIdToDimTypeId);
         }
 
@@ -88,36 +91,46 @@ public class DimLibNetworking {
             packet.write(buf);
             return buf;
         }
-        
+
+        @Override
+        public void write(FriendlyByteBuf buf) {
+            buf.writeNbt(dimIdToTypeIdTag);
+        }
+
+        @Override
+        public PacketType<?> getType() {
+            return TYPE;
+        }
+
         public ImmutableMap<ResourceKey<Level>, ResourceKey<DimensionType>> toMap() {
             CompoundTag tag = dimIdToTypeIdTag();
-            
+
             ImmutableMap.Builder<ResourceKey<Level>, ResourceKey<DimensionType>> builder =
-                new ImmutableMap.Builder<>();
-            
+                    new ImmutableMap.Builder<>();
+
             for (String key : tag.getAllKeys()) {
                 ResourceKey<Level> dimId = ResourceKey.create(
-                    Registries.DIMENSION,
-                    new ResourceLocation(key)
+                        Registries.DIMENSION,
+                        new ResourceLocation(key)
                 );
                 String dimTypeId = tag.getString(key);
                 ResourceKey<DimensionType> dimType = ResourceKey.create(
-                    Registries.DIMENSION_TYPE,
-                    new ResourceLocation(dimTypeId)
+                        Registries.DIMENSION_TYPE,
+                        new ResourceLocation(dimTypeId)
                 );
                 builder.put(dimId, dimType);
             }
-            
+
             return builder.build();
         }
-        
+
         @Environment(EnvType.CLIENT)
         public void handleOnNetworkingThread(ClientGamePacketListener listener) {
             LOGGER.info(
-                "Client received dimension info\n{}",
-                String.join("\n", dimIdToTypeIdTag.getAllKeys())
+                    "Client received dimension info\n{}",
+                    String.join("\n", dimIdToTypeIdTag.getAllKeys())
             );
-            
+
             var dimIdToDimType = this.toMap();
             ClientDimensionInfo.accept(dimIdToDimType);
             ((IClientPacketListener) listener).ip_setLevels(dimIdToDimType.keySet());
@@ -126,18 +139,5 @@ public class DimLibNetworking {
                     ClientDimensionInfo.getDimensionIds()
             ));
         }
-    }
-    
-    @Environment(EnvType.CLIENT)
-    public static void initClient() {
-        ClientPlayNetworking.registerGlobalReceiver(
-            DimSyncPacket.TYPE.getId(),
-            (client, handler, buf, responseSender) -> {
-                // directly handle in networking thread
-                // it does not touch world state, so it's safe
-                DimSyncPacket dimSyncPacket = DimSyncPacket.TYPE.read(buf);
-                dimSyncPacket.handleOnNetworkingThread(handler);
-            }
-        );
     }
 }

@@ -18,6 +18,6 @@ public class MixinPlayerList {
                 ServerPlayNetworking.createS2CPacket(
                         DimLibNetworking.DimSyncPacket.DIM_SYNC_CHANNEL,
                         DimLibNetworking.DimSyncPacket.createBuf(player.server)
-        ));
+                ));
     }
 }

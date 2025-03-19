@@ -17,52 +17,50 @@ import qouteall.dimlib.ducks.IMappedRegistry;
 import java.util.HashSet;
 
 public class DimensionImpl {
-    
+
     public static final Logger LOGGER = LoggerFactory.getLogger(DimensionImpl.class);
-    
+
     public static final HashSet<String> STABLE_NAMESPACES = new HashSet<>();
     public static boolean suppressExperimentalWarning = false;
-    
+
     public static void directlyRegisterLevelStem(
-        MinecraftServer server, ResourceLocation dimensionId, LevelStem levelStem
+            MinecraftServer server, ResourceLocation dimensionId, LevelStem levelStem
     ) {
         RegistryAccess.Frozen registryAccess = server.registryAccess();
-        
+
         WorldData worldData = server.getWorldData();
         WorldOptions worldOptions = worldData.worldGenOptions();
-        
+
         MappedRegistry<LevelStem> levelStems = (MappedRegistry<LevelStem>)
-            registryAccess.registryOrThrow(Registries.LEVEL_STEM);
-        
+                registryAccess.registryOrThrow(Registries.LEVEL_STEM);
+
         if (!levelStems.containsKey(dimensionId)) {
             // the vanilla freezing mechanism is used for validating dangling object references
             // for this API, that thing won't happen
             boolean oldIsFrozen = ((IMappedRegistry) levelStems).dimlib_getIsFrozen();
             ((IMappedRegistry) levelStems).dimlib_setIsFrozen(false);
-            
+
             try {
                 levelStems.register(
-                    ResourceKey.create(Registries.LEVEL_STEM, dimensionId),
-                    levelStem,
-                    Lifecycle.stable()
+                        ResourceKey.create(Registries.LEVEL_STEM, dimensionId),
+                        levelStem,
+                        Lifecycle.stable()
                 );
-            }
-            finally {
+            } finally {
                 ((IMappedRegistry) levelStems).dimlib_setIsFrozen(oldIsFrozen);
             }
-        }
-        else {
+        } else {
             LOGGER.error(
-                "The dimension {} already exists",
-                dimensionId,
-                new Throwable()
+                    "The dimension {} already exists",
+                    dimensionId,
+                    new Throwable()
             );
         }
     }
-    
+
     public static MappedRegistry<LevelStem> getDimensionRegistry(MinecraftServer server) {
         return ((MappedRegistry<LevelStem>)
-            server.registryAccess().registryOrThrow(Registries.LEVEL_STEM)
+                server.registryAccess().registryOrThrow(Registries.LEVEL_STEM)
         );
     }
 }

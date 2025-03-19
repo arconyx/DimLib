@@ -15,25 +15,25 @@ import qouteall.dimlib.DimensionImpl;
 public class MixinWorldDimensions {
     // hack lifecycle
     @Inject(
-        method = "isVanillaLike", at = @At("RETURN"), cancellable = true
+            method = "isVanillaLike", at = @At("RETURN"), cancellable = true
     )
     private static void onIsVanillaLike(
-        ResourceKey<LevelStem> resourceKey, LevelStem levelStem, CallbackInfoReturnable<Boolean> cir
+            ResourceKey<LevelStem> resourceKey, LevelStem levelStem, CallbackInfoReturnable<Boolean> cir
     ) {
         String namespace = resourceKey.location().getNamespace();
         if (DimensionImpl.STABLE_NAMESPACES.contains(namespace)) {
             cir.setReturnValue(true);
         }
     }
-    
+
     // hack lifecycle
     @Redirect(
-        method = "bake",
-        at = @At(
-            value = "INVOKE",
-            target = "Lcom/mojang/serialization/Lifecycle;experimental()Lcom/mojang/serialization/Lifecycle;",
-            remap = false
-        )
+            method = "bake",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lcom/mojang/serialization/Lifecycle;experimental()Lcom/mojang/serialization/Lifecycle;",
+                    remap = false
+            )
     )
     private Lifecycle redirectLifecycle() {
         return Lifecycle.stable();

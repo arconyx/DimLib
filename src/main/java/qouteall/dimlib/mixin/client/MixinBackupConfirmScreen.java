@@ -32,12 +32,12 @@ public class MixinBackupConfirmScreen extends Screen {
     private MultiLineLabel message;
     @Unique
     private boolean dimlib_isExperimentalWarning;
-    
+
     protected MixinBackupConfirmScreen(Component title) {
         super(title);
         throw new RuntimeException();
     }
-    
+
     /**
      * {@link WorldOpenFlows#askForBackup}
      */
@@ -47,34 +47,34 @@ public class MixinBackupConfirmScreen extends Screen {
             Screen lastScreen, BackupConfirmScreen.Listener listener, Component title, Component description, boolean promptForCacheErase, CallbackInfo ci
     ) {
         dimlib_isExperimentalWarning = Objects.equals(
-            title,
-            Component.translatable("selectWorld.backupQuestion.experimental")
+                title,
+                Component.translatable("selectWorld.backupQuestion.experimental")
         );
     }
-    
+
     @Inject(method = "init", at = @At("RETURN"))
     private void onInitEnd(CallbackInfo ci) {
         if (dimlib_isExperimentalWarning) {
             int i = (this.message.getLineCount() + 1) * 9;
             addRenderableWidget(Button
-                .builder(
-                    Component.translatable(
-                        "dimlib.i_know_what_i_am_doing_and_disable_warning"
-                    ),
-                    button -> {
-                        DimLibConfig.suppressExperimentalWarning = true;
-                        MidnightConfig.write(DimLibEntry.MODID);
-                        
-                        this.listener.proceed(false, this.eraseCache.selected());
-                    }
-                )
-                .bounds(
-                    this.width / 2 - 200, 124 + i + 40,
-                    400, 20
-                )
-                .build()
+                    .builder(
+                            Component.translatable(
+                                    "dimlib.i_know_what_i_am_doing_and_disable_warning"
+                            ),
+                            button -> {
+                                DimLibConfig.suppressExperimentalWarning = true;
+                                MidnightConfig.write(DimLibEntry.MODID);
+
+                                this.listener.proceed(false, this.eraseCache.selected());
+                            }
+                    )
+                    .bounds(
+                            this.width / 2 - 200, 124 + i + 40,
+                            400, 20
+                    )
+                    .build()
             );
-            
+
         }
     }
 }

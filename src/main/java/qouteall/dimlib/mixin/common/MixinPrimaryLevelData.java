@@ -15,7 +15,7 @@ public class MixinPrimaryLevelData {
     @Inject(method = "worldGenSettingsLifecycle", at = @At("HEAD"), cancellable = true)
     private void onWorldGenSettingsLifecycle(CallbackInfoReturnable<Lifecycle> cir) {
         if (DimLibConfig.suppressExperimentalWarning
-            || DimensionImpl.suppressExperimentalWarning
+                || DimensionImpl.suppressExperimentalWarning
         ) {
             cir.setReturnValue(Lifecycle.stable());
         }

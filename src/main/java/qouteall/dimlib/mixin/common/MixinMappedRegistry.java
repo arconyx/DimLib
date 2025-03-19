@@ -22,79 +22,72 @@ import java.util.Map;
 public abstract class MixinMappedRegistry<T> implements IMappedRegistry {
     @Shadow
     @Final
-    private Map<ResourceLocation, Holder.Reference<T>> byLocation;
-    
-    @Shadow
-    @Final
     private static Logger LOGGER;
-
-    @Shadow
-    @Final
-    private ObjectList<Holder.Reference<T>> byId;
-    
-    @Shadow
-    @Final
-    private Object2IntMap<T> toId;
-    
-    @Shadow
-    @Final
-    private Map<ResourceKey<T>, Holder.Reference<T>> byKey;
-    
     @Shadow
     @Final
     ResourceKey<? extends Registry<T>> key;
-    
+    @Shadow
+    @Final
+    private Map<ResourceLocation, Holder.Reference<T>> byLocation;
+    @Shadow
+    @Final
+    private ObjectList<Holder.Reference<T>> byId;
+    @Shadow
+    @Final
+    private Object2IntMap<T> toId;
+    @Shadow
+    @Final
+    private Map<ResourceKey<T>, Holder.Reference<T>> byKey;
     @Shadow
     @Final
     private Map<T, Holder.Reference<T>> byValue;
-    
+
     @Shadow
     @Final
     private Map<T, Lifecycle> lifecycles;
-    
+
     @Shadow
     private @Nullable List<Holder.Reference<T>> holdersInOrder;
-    
+
     @Shadow
     private boolean frozen;
-    
+
     @Override
     public boolean dimlib_getIsFrozen() {
         return frozen;
     }
-    
+
     @Override
     public void dimlib_setIsFrozen(boolean cond) {
         frozen = cond;
     }
-    
+
     @Override
     public boolean dimlib_forceRemove(ResourceLocation id) {
         Holder.Reference<T> holder = byLocation.remove(id);
-        
+
         if (holder == null) {
             return false;
         }
-        
+
         T value = holder.value();
-        
+
         int intId = toId.getInt(value);
-        
+
         if (intId == -1) {
             LOGGER.error("[ImmPtl] missing integer id for {}", value);
-        }
-        else {
+        } else {
             toId.removeInt(value);
             byId.set(intId, null);
         }
-        
+
         byKey.remove(ResourceKey.create(key, id));
         byValue.remove(value);
         lifecycles.remove(value);
-        
+
         holdersInOrder = null;
-        
+
         return true;
     }
-    
+
 }
