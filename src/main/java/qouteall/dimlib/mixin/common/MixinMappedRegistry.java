@@ -1,6 +1,7 @@
 package qouteall.dimlib.mixin.common;
 
 import com.mojang.serialization.Lifecycle;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import net.minecraft.core.Holder;
@@ -27,17 +28,14 @@ public abstract class MixinMappedRegistry<T> implements IMappedRegistry {
     @Shadow
     @Final
     private static Logger LOGGER;
-    
-    @Shadow
-    public abstract @Nullable T byId(int id);
-    
+
     @Shadow
     @Final
     private ObjectList<Holder.Reference<T>> byId;
     
     @Shadow
     @Final
-    private Reference2IntMap<T> toId;
+    private Object2IntMap<T> toId;
     
     @Shadow
     @Final
@@ -45,7 +43,7 @@ public abstract class MixinMappedRegistry<T> implements IMappedRegistry {
     
     @Shadow
     @Final
-    private ResourceKey<? extends Registry<T>> key;
+    ResourceKey<? extends Registry<T>> key;
     
     @Shadow
     @Final
