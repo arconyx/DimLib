@@ -121,12 +121,10 @@ public class DimLibNetworking {
             var dimIdToDimType = this.toMap();
             ClientDimensionInfo.accept(dimIdToDimType);
             ((IClientPacketListener) listener).ip_setLevels(dimIdToDimType.keySet());
-            
-            Minecraft.getInstance().execute(() -> {
-                DimensionAPI.CLIENT_DIMENSION_UPDATE_EVENT.invoker().run(
+
+            Minecraft.getInstance().execute(() -> DimensionAPI.CLIENT_DIMENSION_UPDATE_EVENT.invoker().run(
                     ClientDimensionInfo.getDimensionIds()
-                );
-            });
+            ));
         }
     }
     

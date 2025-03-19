@@ -31,7 +31,7 @@ public class MixinBackupConfirmScreen extends Screen {
     @Shadow
     private MultiLineLabel message;
     @Unique
-    private boolean dimlib_isExperimentalWarning = false;
+    private boolean dimlib_isExperimentalWarning;
     
     protected MixinBackupConfirmScreen(Component title) {
         super(title);
