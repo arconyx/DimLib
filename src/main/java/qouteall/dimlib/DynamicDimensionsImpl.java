@@ -11,7 +11,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.ClientCommonPacketListener;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -123,7 +123,8 @@ public class DynamicDimensionsImpl {
         LOGGER.info("Added Dimension {}", dimensionId);
         
         var dimSyncPacket = ServerPlayNetworking.createS2CPacket(
-            DimLibNetworking.DimSyncPacket.createPacket(server)
+                DimLibNetworking.DimSyncPacket.DIM_SYNC_CHANNEL,
+            DimLibNetworking.DimSyncPacket.createBuf(server)
         );
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             player.connection.send(dimSyncPacket);
@@ -216,8 +217,9 @@ public class DynamicDimensionsImpl {
             
             LOGGER.info("Removed Dimension {}", dimension.location());
             
-            Packet<ClientCommonPacketListener> dimSyncPacket = ServerPlayNetworking.createS2CPacket(
-                DimLibNetworking.DimSyncPacket.createPacket(server)
+            Packet<ClientGamePacketListener> dimSyncPacket = ServerPlayNetworking.createS2CPacket(
+                    DimLibNetworking.DimSyncPacket.DIM_SYNC_CHANNEL,
+                DimLibNetworking.DimSyncPacket.createBuf(server)
             );
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 player.connection.send(dimSyncPacket);

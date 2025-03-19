@@ -5,6 +5,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
@@ -25,20 +26,22 @@ import org.slf4j.LoggerFactory;
 import qouteall.dimlib.api.DimensionAPI;
 import qouteall.dimlib.mixin.client.IClientPacketListener;
 
+import static qouteall.dimlib.DimLibEntry.MODID;
+
 public class DimLibNetworking {
     public static final Logger LOGGER = LoggerFactory.getLogger(DimLibNetworking.class);
     
-    public static record DimSyncPacket(
+    public record DimSyncPacket(
         CompoundTag dimIdToTypeIdTag
     ) implements FabricPacket {
+        public static final ResourceLocation DIM_SYNC_CHANNEL = new ResourceLocation(MODID, "dim_sync");
         public static final PacketType<DimSyncPacket> TYPE = PacketType.create(
-            new ResourceLocation("dimlib", "dim_sync"),
-            DimSyncPacket::read
+            DIM_SYNC_CHANNEL,
+            DimSyncPacket::new
         );
         
-        public static DimSyncPacket read(FriendlyByteBuf buf) {
-            CompoundTag compoundTag = buf.readNbt();
-            return new DimSyncPacket(compoundTag);
+        public DimSyncPacket(FriendlyByteBuf buf) {
+            this(buf.readNbt());
         }
         
         @Override
@@ -77,6 +80,13 @@ public class DimLibNetworking {
             }
             
             return new DimSyncPacket(dimIdToDimTypeId);
+        }
+
+        public static FriendlyByteBuf createBuf(MinecraftServer server) {
+            FriendlyByteBuf buf = PacketByteBufs.empty();
+            DimLibNetworking.DimSyncPacket packet = DimLibNetworking.DimSyncPacket.createPacket(server);
+            packet.write(buf);
+            return buf;
         }
         
         public ImmutableMap<ResourceKey<Level>, ResourceKey<DimensionType>> toMap() {
