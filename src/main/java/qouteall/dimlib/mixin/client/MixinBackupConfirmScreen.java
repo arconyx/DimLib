@@ -22,10 +22,10 @@ import java.util.Objects;
 
 @Mixin(BackupConfirmScreen.class)
 public class MixinBackupConfirmScreen extends Screen {
-    
+
     @Shadow
     @Final
-    protected BackupConfirmScreen.Listener onProceed;
+    protected BackupConfirmScreen.Listener listener;
     @Shadow
     private Checkbox eraseCache;
     @Shadow
@@ -44,11 +44,10 @@ public class MixinBackupConfirmScreen extends Screen {
     @SuppressWarnings("JavadocReference")
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onInitEnd(
-        Runnable runnable, BackupConfirmScreen.Listener listener,
-        Component component, Component component2, boolean bl, CallbackInfo ci
+            Screen lastScreen, BackupConfirmScreen.Listener listener, Component title, Component description, boolean promptForCacheErase, CallbackInfo ci
     ) {
         dimlib_isExperimentalWarning = Objects.equals(
-            component,
+            title,
             Component.translatable("selectWorld.backupQuestion.experimental")
         );
     }
@@ -66,7 +65,7 @@ public class MixinBackupConfirmScreen extends Screen {
                         DimLibConfig.suppressExperimentalWarning = true;
                         MidnightConfig.write(DimLibEntry.MODID);
                         
-                        this.onProceed.proceed(false, this.eraseCache.selected());
+                        this.listener.proceed(false, this.eraseCache.selected());
                     }
                 )
                 .bounds(
