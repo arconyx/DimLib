@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import qouteall.dimlib.DimLibNetworking;
+import qouteall.dimlib.network.DimSyncPacket;
 
 @Mixin(PlayerList.class)
 public class MixinPlayerList {
@@ -16,8 +16,8 @@ public class MixinPlayerList {
     private void onConnectionEstablished(Connection netManager, ServerPlayer player, CallbackInfo ci) {
         player.connection.send(
                 ServerPlayNetworking.createS2CPacket(
-                        DimLibNetworking.DimSyncPacket.DIM_SYNC_CHANNEL,
-                        DimLibNetworking.DimSyncPacket.createBuf(player.server)
+                        DimSyncPacket.DIM_SYNC_CHANNEL,
+                        DimSyncPacket.createBuf(player.server)
                 ));
     }
 }

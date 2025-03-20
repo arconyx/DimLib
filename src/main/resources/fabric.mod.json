@@ -20,7 +20,7 @@
           "qouteall.dimlib.DimLibEntry"
 		],
 		"client": [
-			"qouteall.dimlib.DimLibEntryClient"
+			"qouteall.dimlib.client.DimLibEntryClient"
 		],
 		"modmenu": [
 			"qouteall.dimlib.config.DimLibModmenuIntegration"

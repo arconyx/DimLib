@@ -38,6 +38,7 @@ import qouteall.dimlib.api.DimensionAPI;
 import qouteall.dimlib.ducks.IMappedRegistry;
 import qouteall.dimlib.ducks.IMinecraftServer;
 import qouteall.dimlib.mixin.common.IEWorldBorder;
+import qouteall.dimlib.network.DimSyncPacket;
 
 import java.io.IOException;
 import java.util.List;
@@ -123,8 +124,8 @@ public class DynamicDimensionsImpl {
         LOGGER.info("Added Dimension {}", dimensionId);
 
         var dimSyncPacket = ServerPlayNetworking.createS2CPacket(
-                DimLibNetworking.DimSyncPacket.DIM_SYNC_CHANNEL,
-                DimLibNetworking.DimSyncPacket.createBuf(server)
+                DimSyncPacket.DIM_SYNC_CHANNEL,
+                DimSyncPacket.createBuf(server)
         );
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             player.connection.send(dimSyncPacket);
@@ -216,8 +217,8 @@ public class DynamicDimensionsImpl {
             LOGGER.info("Removed Dimension {}", dimension.location());
 
             Packet<ClientGamePacketListener> dimSyncPacket = ServerPlayNetworking.createS2CPacket(
-                    DimLibNetworking.DimSyncPacket.DIM_SYNC_CHANNEL,
-                    DimLibNetworking.DimSyncPacket.createBuf(server)
+                    DimSyncPacket.DIM_SYNC_CHANNEL,
+                    DimSyncPacket.createBuf(server)
             );
             for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                 player.connection.send(dimSyncPacket);

@@ -16,10 +16,10 @@ import net.minecraft.world.level.storage.WorldData;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import qouteall.dimlib.ClientDimensionInfo;
 import qouteall.dimlib.DimensionImpl;
 import qouteall.dimlib.DimensionTemplate;
 import qouteall.dimlib.DynamicDimensionsImpl;
+import qouteall.dimlib.client.ClientDimensionInfo;
 import qouteall.dimlib.ducks.IMinecraftServer;
 
 import java.util.Map;

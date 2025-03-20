@@ -1,4 +1,4 @@
-package qouteall.dimlib;
+package qouteall.dimlib.client;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -35,7 +35,7 @@ public class ClientDimensionInfo {
     }
 
     // this is invoked on networking thread (earlier than in client thread)
-    static void accept(ImmutableMap<ResourceKey<Level>, ResourceKey<DimensionType>> m) {
+    public static void accept(ImmutableMap<ResourceKey<Level>, ResourceKey<DimensionType>> m) {
         dimensionIdToType = m;
         dimensionIds = dimensionIdToType.keySet();
     }
